@@ -65,19 +65,6 @@ The agent picks the environment, opens the page in its own Space, reads a Snapsh
 | **Compact Snapshots** | Structured page text with clickable refs, a fraction of the size of other agent browsers — fewer tokens per look. |
 | **Works with any agent** | A Node SDK, a Skill for Claude Code / Codex / Cursor and more, and an MCP server with tools for environments, tasks and hand-off. |
 
-## KamiBrowser vs existing products
-
-| Feature | KamiBrowser | Agent browsers<br><sub>ego lite</sub> | Browser CLIs<br><sub>Playwright</sub> | Browser extensions<br><sub>Claude in Chrome</sub> | Built-in browsers<br><sub>Claude built-in browser</sub> |
-|---|:---:|:---:|:---:|:---:|:---:|
-| Judged human by behavior detection | ✓ | — | — | — | — |
-| Many isolated accounts | ✓ | — | — | — | — |
-| Per-account fingerprint & proxy | ✓ | — | — | — | — |
-| Hand-off to you and back | ✓ | ✓ | — | ✓ | — |
-| Parallel Spaces | ✓ | ✓ | — | — | — |
-| MCP server | ✓ | — | ✓ | ✓ | ✓ |
-| Works with any AI agent | ✓ | ✓ | ✓ | — | — |
-| Data stored locally | ✓ | ✓ | ✓ | ✓ | ✓ |
-
 ## Benchmarks
 
 Measured on an Apple M4 Pro, macOS, same scripts for every tool.

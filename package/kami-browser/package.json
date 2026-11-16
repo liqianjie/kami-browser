@@ -1,0 +1,41 @@
+{
+  "name": "@kamibrowser/sdk",
+  "version": "0.1.0",
+  "description": "KamiBrowser agent SDK: a TypeScript single-file build of the kami-browser CDP harness.",
+  "type": "module",
+  "bin": {
+    "kami-browser": "./dist/out/index.js"
+  },
+  "scripts": {
+    "clean": "rm -rf dist artifacts",
+    "build": "node scripts/build.mjs",
+    "check:skill-translation": "node scripts/check-skill-translation.mjs",
+    "e2e": "node scripts/run-real-browser-e2e.mjs",
+    "style:check": "prettier --check \"src/**/*.{ts,mjs,js}\" \"scripts/**/*.{ts,mjs,js}\" package.json README.md",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run build && npm run check:skill-translation && npm run typecheck && node --test \"src/**/*.test.mjs\"",
+    "validate:site-skills": "npm run build && KAMI_BROWSER_AGENT_WORKSPACE=../../skills/kami-browser node dist/scripts/validate-site-skills.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-typescript": "^12.3.0",
+    "@types/node": "^22.15.29",
+    "esbuild": "^0.28.1",
+    "prettier": "^3.8.4",
+    "rollup": "^4.60.4",
+    "tslib": "^2.8.1",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "acorn": "^8.16.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/liqianjie/kami-browser.git",
+    "directory": "package/kami-browser"
+  }
+}

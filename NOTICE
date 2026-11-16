@@ -1,0 +1,7 @@
+kami-browser — KamiBrowser agent SDK and Skill
+Copyright (c) 2026 KamiBrowser contributors
+
+The agent SDK (package/kami-browser) and the kami-browser Skill
+(skills/kami-browser) are derived from ego-lite by CitroLabs,
+https://github.com/citrolabs/ego-lite, released under the MIT License.
+The original copyright notice is kept in LICENSE.

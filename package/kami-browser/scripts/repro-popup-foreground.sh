@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Minimal macOS reproduction for KamiBrowser being activated when a page-created
+# popup opens. This deliberately keeps the TaskSpace Agent-owned throughout.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PACKAGE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+SDK_PATH="${PACKAGE_DIR}/dist/out/index.js"
+DEFAULT_KAMI_CLI="/Applications/KamiBrowser.app/Contents/Frameworks/KamiBrowser Framework.framework/Versions/Current/Helpers/kami-browser"
+KAMI_CLI="${KAMI_BROWSER_REAL_E2E_CLI:-${DEFAULT_KAMI_CLI}}"
+
+if [[ "$(uname -s)" != "Darwin" ]]; then
+  echo "This reproduction currently targets KamiBrowser on macOS." >&2
+  exit 1
+fi
+
+if [[ ! -x "${KAMI_CLI}" ]]; then
+  echo "KamiBrowser CLI was not found at: ${KAMI_CLI}" >&2
+  echo "Override it with KAMI_BROWSER_REAL_E2E_CLI=/path/to/kami-browser" >&2
+  exit 1
+fi
+
+echo "Building the workspace SDK..."
+(cd "${PACKAGE_DIR}" && npm run build)
+
+if [[ ! -f "${SDK_PATH}" ]]; then
+  echo "SDK build output was not created at: ${SDK_PATH}" >&2
+  exit 1
+fi
+
+echo
+echo "The popup will open in 5 seconds."
+echo "Keep another application in front and watch whether KamiBrowser takes focus."
+sleep 5
+
+"${KAMI_CLI}" nodejs --sdk-path "${SDK_PATH}" <<'EOF'
+const task = await taskSpace(`popup foreground reproduction ${Date.now()}`);
+
+try {
+  const page = task.page("p1");
+  const html = `
+    <!doctype html>
+    <meta charset="utf-8">
+    <title>KamiBrowser popup foreground reproduction</title>
+    <button id="open-popup">Open popup</button>
+  `;
+
+  await page.goto(
+    "data:text/html;base64," + Buffer.from(html).toString("base64"),
+  );
+  await page.evaluate(() => {
+    document.querySelector("#open-popup").addEventListener("click", () => {
+      window.open("about:blank", "_blank");
+    });
+  });
+
+  // A trusted browser click makes the site create a popup target. The popup
+  // creation is the event under test; no handoff or permission prompt occurs.
+  const receipt = await page.click("#open-popup");
+  console.log(
+    JSON.stringify({
+      reproduced: true,
+      spaceId: task.spaceId,
+      ownership: task.ownership,
+      popups: receipt.popups || [],
+    }),
+  );
+
+  // Leave the result visible briefly, then remove all reproduction state.
+  await new Promise((resolve) => setTimeout(resolve, 8_000));
+} finally {
+  await task.finish({ keep: [] }).catch((error) => {
+    console.error(`Cleanup failed for TaskSpace ${task.spaceId}: ${error.message}`);
+  });
+}
+EOF
+
+echo "Reproduction finished; the temporary TaskSpace was cleaned up."
